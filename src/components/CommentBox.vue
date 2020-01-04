@@ -47,7 +47,7 @@
         methods: {
             handleSubmit() {
                 this.comments = {
-                    replyCommentUid: this.replyInfo.uid,
+                    uid: this.$store.state.app.id,
                     replyUid: this.replyInfo.replyUid,
                     userName: this.userInfo.userName,
                     avatar: this.userInfo.avatar,
@@ -62,7 +62,7 @@
             },
             handleCancle() {
                 this.value = '';
-                this.$emit("cancel-box", this.replyInfo.uid)
+                this.$emit("cancel-box", this.replyInfo.replyUid)
             }
         },
     };

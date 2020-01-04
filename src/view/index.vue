@@ -1,7 +1,6 @@
 <template>
-    <div>
-
-        <CommentBox :userInfo="userInfo" :reply-info="replyInfo"  @submit-box="submitBox" @canel-box="cancelBox" :showCancle="showCancle"></CommentBox>
+    <div class="contain">
+        <CommentBox :userInfo="userInfo" :reply-info="replyInfo"  @submit-box="submitBox" :showCancle="showCancle"></CommentBox>
 
         <CommentList :comments="comments"></CommentList>
     </div>
@@ -26,10 +25,10 @@
 
                 },
                 replyInfo: {
-                    uid: "uid009",
+                    uid: "",
                     blogUid: "uid000003",
                     replyUserUid: "uid000004",
-                    replyUid: "",
+                    replyUid: 0,
                     avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
                 },
                 comments: [
@@ -81,33 +80,19 @@
         methods: {
             //拿到vuex中的写的两个方法
             ...mapMutations(['setCommentList', 'increment']),
-            getMenuBtnList(menuTreeList, uid, comment) {
-
-                if (menuTreeList == undefined || menuTreeList.length <= 0) {
-                    return;
-                }
-
-                for (let item of menuTreeList) {
-
-                    if (item.uid === uid) {
-                        var menu = item.reply;
-                        menu.push(comment);
-                    } else {
-                        this.getMenuBtnList(item.reply, uid, comment);
-                    }
-                }
-            },
             submitBox(e) {
-                console.log("提交");
                 var comments = this.$store.state.app.commentList;
                 e.uid = this.$store.state.app.id
                 comments.push(e);
                 this.$store.commit("setCommentList", comments);
                 this.$store.commit("increment");
-            },
-            cancelBox(e) {
-                console.log("取消", e)
-            },
+            }
         },
     };
 </script>
+<style>
+    .contain{
+        width: 600px;
+        margin:0 auto;
+    }
+</style>

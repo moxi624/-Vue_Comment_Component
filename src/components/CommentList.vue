@@ -12,7 +12,8 @@
                 {{item.content}}
             </p>
 
-            <CommentBox class="comment" :userInfo="userInfo" :reply-info="replyInfo" :id="item.uid" @submit-box="submitBox" @cancel-box="cancelBox"></CommentBox>
+            <CommentBox class="comment" :userInfo="userInfo" :reply-info="replyInfo" :id="item.uid"
+                        @submit-box="submitBox" @cancel-box="cancelBox"></CommentBox>
 
             <CommentList :comments="item.reply"></CommentList>
 
@@ -21,8 +22,9 @@
 </template>
 <script>
 
-    import { mapMutations} from 'vuex';
+    import {mapMutations} from 'vuex';
     import CommentBox from "../components/CommentBox";
+
     export default {
         name: "CommentList",
         props: ['comments'],
@@ -38,9 +40,9 @@
 
                 },
                 replyInfo: {
-                    uid: "uid000002",
+                    uid: "",
                     blogUid: "uid000003",
-                    replyUserUid: "uid000004",
+                    replyUserUid: 0,
                     avatar: "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
                 },
             };
@@ -52,9 +54,7 @@
             CommentBox
         },
 
-        compute: {
-
-        },
+        compute: {},
         methods: {
             ...mapMutations(['setCommentList', 'increment']),
             replyTo: function (uid) {
@@ -63,68 +63,44 @@
                     lists[i].style.display = 'none';
                 }
                 document.getElementById(uid).style.display = 'block';
-                this.replyInfo.uid = uid
+                this.replyInfo.replyUid = uid
             },
             submitBox(e) {
-                console.log("提交", e)
-                document.getElementById(this.replyInfo.uid).style.display = 'none'
+                // 一级评论
+                if (e.replyUid == 0) {
+                    var firstComment = this.$store.state.app.commentList;
+                    firstComment.push(e);
+                    this.$store.commit("setCommentList", firstComment);
+                    this.$store.commit("increment");
+
+                    return;
+                }
+
+                document.getElementById(e.replyUid).style.display = 'none'
                 var comments = this.$store.state.app.commentList;
-                e.uid = this.$store.state.app.id
-                this.getMenuBtnList(comments, e.replyCommentUid, e)
-                comments.push(e);
+                this.updateCommentList(comments, e.replyUid, e)
                 this.$store.commit("setCommentList", comments);
                 this.$store.commit("increment");
 
             },
             cancelBox(e) {
-                console.log("取消", e)
                 document.getElementById(e).style.display = 'none'
             },
-            handleSubmit() {
+            updateCommentList(commentList, uid, targetComment) {
 
-                this.comment = {
-                    uid: this.$store.state.app.id,
-                    replyCommentUid: this.replyInfo.uid,
-                    userName: '小溪',
-                    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-                    content: this.value,
-                    reply: []
-                }
-                this.value = '';
-
-                document.getElementById(this.replyInfo.uid).style.display = 'none'
-
-                var comments = this.$store.state.app.commentList;
-
-
-                this.getMenuBtnList(comments, this.comment.replyCommentUid, this.comment)
-
-                this.$store.commit("setCommentList", comments);
-                this.$store.commit("increment");
-
-            },
-            getMenuBtnList(menuTreeList, uid, comment) {
-
-                if (menuTreeList == undefined || menuTreeList.length <= 0) {
+                if (commentList == undefined || commentList.length <= 0) {
                     return;
                 }
 
-                for (let item of menuTreeList) {
-
+                for (let item of commentList) {
+                    console.log("递归中", item.uid, uid)
                     if (item.uid === uid) {
                         var menu = item.reply;
-                        menu.push(comment);
+                        menu.push(targetComment);
                     } else {
-                        this.getMenuBtnList(item.reply, uid, comment);
+                        this.updateCommentList(item.reply, uid, targetComment);
                     }
                 }
-            },
-            handleChange(e) {
-                this.value = e.target.value;
-            },
-            handleCancle() {
-                this.value = '';
-                document.getElementById(this.replyInfo.uid).style.display = 'none'
             }
         },
     };
