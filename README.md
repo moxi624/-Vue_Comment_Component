@@ -1,4 +1,14 @@
-# Vue如何制作一个评论模块
+# Vue制作评论组件
+
+## 项目启动
+
+```
+yarn install
+```
+
+```
+yarn run serve
+```
 
 ## 前言
 
